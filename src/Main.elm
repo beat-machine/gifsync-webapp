@@ -4,6 +4,8 @@ import Api
 import Base64
 import Browser
 import Bytes exposing (Bytes)
+import Common.Content
+import FeatherIcons
 import File
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -11,7 +13,13 @@ import Html.Events exposing (..)
 import Json.Decode as D
 
 
-main : Program () Model Msg
+type alias Flags =
+    { baseUrl : String
+    , version : String
+    }
+
+
+main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
@@ -24,12 +32,20 @@ main =
 type alias Model =
     { gif : Maybe File.File
     , audio : Maybe File.File
+    , apiUrl : String
+    , version : String
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { gif = Nothing, audio = Nothing }, Cmd.none )
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( { gif = Nothing
+      , audio = Nothing
+      , apiUrl = flags.baseUrl
+      , version = flags.version
+      }
+    , Cmd.none
+    )
 
 
 type Msg
@@ -37,6 +53,7 @@ type Msg
     | SetAudio File.File
     | Submit
     | GotVideo (Result String Bytes)
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,7 +71,7 @@ update msg model =
                     ( model
                     , Cmd.batch
                         [ clearVideo ()
-                        , Api.submitFiles "http://localhost:8000" { gif = gifFile, audio = audioFile } GotVideo
+                        , Api.submitFiles model.apiUrl { gif = gifFile, audio = audioFile } GotVideo
                         ]
                     )
 
@@ -72,6 +89,9 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
+        NoOp ->
+            ( model, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -81,7 +101,7 @@ subscriptions model =
 viewUpload : Model -> Html Msg
 viewUpload model =
     section [ class "row" ]
-        [ div [ class "frame five columns upload-panel" ]
+        [ div [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Gif" ]
             , p [] [ text "Upload a gif." ]
             , input
@@ -92,8 +112,7 @@ viewUpload model =
                 ]
                 []
             ]
-        , div [ class "two columns big-plus" ] [ text "+" ]
-        , div [ class "frame five columns upload-panel" ]
+        , div [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Audio" ]
             , p [] [ text "Upload an mp3 up to 2:30 in length." ]
             , input
@@ -113,7 +132,7 @@ viewResult model =
         [ h3 [] [ text "Result" ]
         , p [] [ text "Press the button below to render the result!" ]
         , button [ class "button-primary render-button", disabled (model.audio == Nothing || model.gif == Nothing), onClick Submit ] [ text "Submit!" ]
-        , video [ id "player", controls True, autoplay False ] []
+        , video [ class "hidden", id "player", controls True, autoplay False ] []
         ]
 
 
@@ -123,12 +142,15 @@ view model =
         [ class "container"
         , class "app"
         ]
-        [ section []
-            [ h1 [ ] [ text "Gifsync" ]
+        [ Common.Content.viewNavbar
+        , section []
+            [ h1 [] [ text "Gifsync" ]
             , p [] [ text "Sync gifs and audio. See for yourself!" ]
             ]
         , viewUpload model
+        , Common.Content.viewPatreonSection NoOp "Gifsync"
         , viewResult model
+        , Common.Content.standardFooterInfo model.version "https://github.com/dhsavell/gifsync-webapp" |> Common.Content.viewFooter
         ]
 
 
