@@ -19,6 +19,12 @@ type alias Flags =
     }
 
 
+type Status
+    = Idle
+    | Waiting
+    | Done
+
+
 main : Program Flags Model Msg
 main =
     Browser.element
@@ -34,6 +40,7 @@ type alias Model =
     , audio : Maybe File.File
     , apiUrl : String
     , version : String
+    , status : Status
     }
 
 
@@ -43,6 +50,7 @@ init flags =
       , audio = Nothing
       , apiUrl = flags.baseUrl
       , version = flags.version
+      , status = Idle
       }
     , Cmd.none
     )
@@ -68,7 +76,7 @@ update msg model =
         Submit ->
             case ( model.gif, model.audio ) of
                 ( Just gifFile, Just audioFile ) ->
-                    ( model
+                    ( { model | status = Waiting }
                     , Cmd.batch
                         [ clearVideo ()
                         , Api.submitFiles model.apiUrl { gif = gifFile, audio = audioFile } GotVideo
@@ -79,12 +87,12 @@ update msg model =
                     ( model, Cmd.none )
 
         GotVideo (Err error) ->
-            ( model, Cmd.none )
+            ( { model | status = Idle }, Cmd.none )
 
         GotVideo (Ok videoBytes) ->
             case Base64.fromBytes videoBytes of
                 Just d ->
-                    ( model, setVideo d )
+                    ( { model | status = Done }, setVideo d )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -132,7 +140,7 @@ viewResult model =
         [ h3 [] [ text "Result" ]
         , p [] [ text "Press the button below to render the result!" ]
         , button [ class "button-primary render-button", disabled (model.audio == Nothing || model.gif == Nothing), onClick Submit ] [ text "Submit!" ]
-        , video [ class "hidden", id "player", controls True, autoplay False ] []
+        , video [ classList [ ("hidden", model.status /= Done) ], id "player", controls True, autoplay False ] []
         ]
 
 
