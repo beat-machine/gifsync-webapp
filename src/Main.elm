@@ -21,8 +21,9 @@ type alias Flags =
 
 type Status
     = Idle
-    | Waiting
-    | Done
+    | Failed String
+    | InProgress
+    | Succeeded
 
 
 main : Program Flags Model Msg
@@ -76,7 +77,7 @@ update msg model =
         Submit ->
             case ( model.gif, model.audio ) of
                 ( Just gifFile, Just audioFile ) ->
-                    ( { model | status = Waiting }
+                    ( { model | status = InProgress }
                     , Cmd.batch
                         [ clearVideo ()
                         , Api.submitFiles model.apiUrl { gif = gifFile, audio = audioFile } GotVideo
@@ -87,12 +88,12 @@ update msg model =
                     ( model, Cmd.none )
 
         GotVideo (Err error) ->
-            ( { model | status = Idle }, Cmd.none )
+            ( { model | status = Failed error }, Cmd.none )
 
         GotVideo (Ok videoBytes) ->
             case Base64.fromBytes videoBytes of
                 Just d ->
-                    ( { model | status = Done }, setVideo d )
+                    ( { model | status = Succeeded }, setVideo d )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -108,8 +109,8 @@ subscriptions model =
 
 viewUpload : Model -> Html Msg
 viewUpload model =
-    section [ class "row" ]
-        [ div [ class "frame six columns upload-panel" ]
+    div [ class "row" ]
+        [ section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Gif" ]
             , p [] [ text "Upload a gif." ]
             , input
@@ -120,7 +121,7 @@ viewUpload model =
                 ]
                 []
             ]
-        , div [ class "frame six columns upload-panel" ]
+        , section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Audio" ]
             , p [] [ text "Upload an mp3 up to 2:30 in length." ]
             , input
@@ -134,13 +135,46 @@ viewUpload model =
         ]
 
 
+loader : Html Msg
+loader =
+    div []
+        [ p [ class "status" ] [ text "Working on it..." ]
+        , div [ class "loader" ]
+            [ div [ id "r1" ] []
+            , div [ id "r2" ] []
+            , div [ id "r3" ] []
+            , div [ id "r4" ] []
+            ]
+        ]
+
+
 viewResult : Model -> Html Msg
 viewResult model =
     section [ class "frame" ]
         [ h3 [] [ text "Result" ]
         , p [] [ text "Press the button below to render the result!" ]
-        , button [ class "button-primary render-button", disabled (model.audio == Nothing || model.gif == Nothing), onClick Submit ] [ text "Submit!" ]
-        , video [ classList [ ("hidden", model.status /= Done) ], id "player", controls True, autoplay False ] []
+        , div [ class "render-button-container" ]
+            [ button [ class "button-primary render-button", disabled (model.audio == Nothing || model.gif == Nothing || model.status == InProgress), onClick Submit ] [ text "Submit!" ]
+            ]
+        , case model.status of
+            InProgress ->
+                loader
+
+            Failed errorMsg ->
+                p [ class "status", class "error" ] [ text errorMsg ]
+
+            _ ->
+                text ""
+        , video [ classList [ ( "hidden", model.status /= Succeeded ) ], id "player", controls True, autoplay False ] []
+        , p [ classList [ ( "hidden", model.status /= Succeeded ) ], class "audio-hint" ]
+            [ text "Right-click on the player above or "
+            , a
+                [ id "download"
+                , download ""
+                ]
+                [ text "use this link" ]
+            , text " to download the result."
+            ]
         ]
 
 
@@ -153,7 +187,7 @@ view model =
         [ Common.Content.viewNavbar
         , section []
             [ h1 [] [ text "Gifsync" ]
-            , p [] [ text "Sync gifs and audio. See for yourself!" ]
+            , p [] [ text "Add another dimension to gifs by syncing their frames to audio! Still in beta, so things will probably break..." ]
             ]
         , viewUpload model
         , Common.Content.viewPatreonSection NoOp "Gifsync"

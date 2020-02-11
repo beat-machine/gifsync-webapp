@@ -39,7 +39,7 @@ app.ports.setVideo.subscribe(function(data) {
   let blob = b64toBlob(data, "video/mp4");
   let url = URL.createObjectURL(blob);
   document.getElementById("player").src = url;
-  // document.getElementById("download").href = url;
+  document.getElementById("download").href = url;
   lastObjectUrl = url;
 });
 
@@ -52,5 +52,5 @@ app.ports.clearVideo.subscribe(function(data) {
   let player = document.getElementById("player");
   player.pause();
   player.removeAttribute("src");
-  // document.getElementById("download").removeAttribute("href");
+  document.getElementById("download").removeAttribute("href");
 });
