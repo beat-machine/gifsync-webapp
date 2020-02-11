@@ -112,7 +112,7 @@ viewUpload model =
     div [ class "row" ]
         [ section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Gif" ]
-            , p [] [ text "Upload a gif." ]
+            , p [] [ text "Upload an animated GIF. If it's excessively large or not animated, it'll probably fail." ]
             , input
                 [ type_ "file"
                 , multiple False
@@ -123,7 +123,7 @@ viewUpload model =
             ]
         , section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Audio" ]
-            , p [] [ text "Upload an mp3 up to 2:30 in length." ]
+            , p [] [ text "Upload an MP3 up to 2:30 in length. Longer songs will break!" ]
             , input
                 [ type_ "file"
                 , multiple False
