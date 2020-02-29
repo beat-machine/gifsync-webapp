@@ -3,6 +3,16 @@
 :root {
   --background: #191412;
   --background-grid: #201f1a;
+  --frames: #b2afaa;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #fff;
+    --background-grid: #fff5f1;
+    --frames: #322;
+    --text: #322;
+  }
 }
 
 @import "Common/base.css";
