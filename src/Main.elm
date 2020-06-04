@@ -19,6 +19,11 @@ type alias Flags =
     }
 
 
+type Mode
+    = GifReorder
+    | ImageCas
+
+
 type Status
     = Idle
     | Failed String
@@ -42,6 +47,7 @@ type alias Model =
     , apiUrl : String
     , version : String
     , status : Status
+    , mode : Mode
     }
 
 
@@ -52,6 +58,7 @@ init flags =
       , apiUrl = flags.baseUrl
       , version = flags.version
       , status = Idle
+      , mode = GifReorder
       }
     , Cmd.none
     )
@@ -188,6 +195,23 @@ view model =
         , section []
             [ h1 [] [ text "Gifsync" ]
             , p [] [ text "Add another dimension to gifs by syncing their frames to audio! Still in beta, so things will probably break..." ]
+            ]
+        , section [ class "frame" ]
+            [ h3 [] [ text "Mode" ]
+            , p [] [ text "Select the effect you'd like to apply. Note that some " ]
+            , div [ class "row" ]
+                [ div [ class "four columns" ]
+                    [ 
+                        select [ class "u-full-width" ]
+                            [ option [ ] [ text "Reorder Frames" ]
+                            , option [ ] [ text "Content-Aware Scale" ]
+                            ]
+                    ]
+                , div [ class "eight columns" ]
+                    [
+                        p [] [ text "Rearrange the frames of a gif based on audio amplitude." ]
+                    ]
+                ]
             ]
         , viewUpload model
         , Common.Content.viewPatreonSection NoOp "Gifsync"
