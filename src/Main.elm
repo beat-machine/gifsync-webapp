@@ -190,7 +190,6 @@ view model =
             , p [] [ text "Add another dimension to gifs by syncing their frames to audio! Still in beta, so things will probably break..." ]
             ]
         , viewUpload model
-        , Common.Content.viewPatreonSection NoOp "Gifsync"
         , viewResult model
         , Common.Content.standardFooterInfo model.version "https://github.com/dhsavell/gifsync-webapp" |> Common.Content.viewFooter
         ]
