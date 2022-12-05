@@ -4,8 +4,7 @@ import Api
 import Base64
 import Browser
 import Bytes exposing (Bytes)
-import Common.Content
-import FeatherIcons
+import TbmApp.Content
 import File
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -112,7 +111,7 @@ viewUpload model =
     div [ class "row" ]
         [ section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Gif" ]
-            , p [] [ text "Upload an animated GIF. If it's excessively large or not animated, it'll probably fail." ]
+            , p [] [ text "Select an animated gif." ]
             , input
                 [ type_ "file"
                 , multiple False
@@ -123,7 +122,7 @@ viewUpload model =
             ]
         , section [ class "frame six columns upload-panel" ]
             [ h3 [] [ text "Audio" ]
-            , p [] [ text "Upload an MP3 up to 2:30 in length. Longer songs will break!" ]
+            , p [] [ text "Select an MP3 to sync the gif to." ]
             , input
                 [ type_ "file"
                 , multiple False
@@ -184,14 +183,14 @@ view model =
         [ class "container"
         , class "app"
         ]
-        [ Common.Content.viewNavbar
+        [ TbmApp.Content.viewNavbar
         , section []
             [ h1 [] [ text "Gifsync" ]
-            , p [] [ text "Add another dimension to gifs by syncing their frames to audio! Still in beta, so things will probably break..." ]
+            , p [] [ text "Sync gif frames to audio amplitude!" ]
             ]
         , viewUpload model
         , viewResult model
-        , Common.Content.standardFooterInfo model.version "https://github.com/dhsavell/gifsync-webapp" |> Common.Content.viewFooter
+        , TbmApp.Content.standardFooterInfo model.version "https://github.com/dhsavell/gifsync-webapp" |> TbmApp.Content.viewFooter
         ]
 
 
