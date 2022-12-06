@@ -1,6 +1,6 @@
 {
   "name": "gifsync-webapp",
-  "version": "22.12.00",
+  "version": "22.12.01",
   "description": "Gifsync webapp",
   "main": "elm.js",
   "directories": {
