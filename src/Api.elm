@@ -2,7 +2,7 @@ module Api exposing (Payload, submitFiles)
 
 import Http
 import Bytes exposing (Bytes)
-import Common.HttpExtras
+import TbmApp.HttpExtras
 import File
 
 type alias Payload =
@@ -18,5 +18,5 @@ submitFiles apiUrl payload toMsg =
             [ Http.filePart "audio" payload.audio
             , Http.filePart "gif" payload.gif
             ]
-        , expect = Common.HttpExtras.expectRawBytes toMsg
+        , expect = TbmApp.HttpExtras.expectRawBytes toMsg
         }

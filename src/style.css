@@ -1,4 +1,5 @@
-@import "Common/default-colors.css";
+@import "../tbm-webapp-common/styles/base.css";
+@import "../tbm-webapp-common/styles/default-colors.css";
 
 :root {
   --background: #191412;
@@ -14,8 +15,6 @@
     --text: #322;
   }
 }
-
-@import "Common/base.css";
 
 /* Loading animation */
 
